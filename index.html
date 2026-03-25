@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智会 Agent - UI 预览 v3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 苹果风浅色主题 */
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F5F5F7;
+            --bg-tertiary: #FAFAFA;
+            --bg-hover: #F0F0F2;
+
+            /* 边框 - 极淡 */
+            --border: rgba(0, 0, 0, 0.06);
+            --border-hover: rgba(0, 0, 0, 0.1);
+
+            /* 文字 - 苹果官方色 */
+            --text-primary: #1D1D1F;
+            --text-secondary: #6E6E73;
+            --text-tertiary: #86868B;
+
+            /* 强调色 - 苹果蓝 */
+            --accent: #007AFF;
+            --accent-light: #E5F1FF;
+            --accent-hover: #0066D6;
+
+            /* 功能色 */
+            --success: #34C759;
+            --success-light: #E8F9ED;
+            --warning: #FF9500;
+            --warning-light: #FFF4E5;
+
+            /* 阴影 - 非常轻柔 */
+            --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 页面切换 */
+        .page-switcher {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 2px;
+            background: var(--bg-secondary);
+            padding: 3px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .page-switcher button {
+            padding: 8px 18px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .page-switcher button.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .page-switcher button:hover:not(.active) {
+            color: var(--text-primary);
+        }
+
+        .page {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* ========== 主界面布局 ========== */
+        .main-layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 8px 24px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--text-primary);
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .logo-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .new-task-btn {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: none;
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .new-task-btn:hover {
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
+        }
+
+        .new-task-btn .plus {
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .sidebar-section {
+            margin-top: 28px;
+        }
+
+        .sidebar-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            padding: 0 10px 8px;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: all 0.15s ease;
+        }
+
+        .sidebar-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .sidebar-item.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-xs);
+        }
+
+        .sidebar-item .icon {
+            font-size: 16px;
+        }
+
+        .sidebar-spacer {
+            flex: 1;
+        }
+
+        .sidebar-footer {
+            padding-top: 12px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+        }
+
+        .topbar {
+            height: 64px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .start-btn {
+            background: var(--text-primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 首页内容 */
+        .home-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .welcome-title {
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome-subtitle {
+            font-size: 17px;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* 快捷卡片 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            width: 100%;
+            margin-bottom: 36px;
+        }
+
+        .quick-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quick-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .quick-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 20px;
+        }
+
+        .quick-card-icon.blue {
+            background: var(--accent-light);
+        }
+
+        .quick-card-icon.green {
+            background: var(--success-light);
+        }
+
+        .quick-card-icon.orange {
+            background: var(--warning-light);
+        }
+
+        .quick-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-card-badge {
+            font-size: 11px;
+            background: var(--bg-secondary);
+            color: var(--text-tertiary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .quick-card-desc {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .quick-card-arrow {
+            color: var(--text-tertiary);
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .quick-card:hover .quick-card-arrow {
+            transform: translateX(4px);
+            color: var(--accent);
+        }
+
+        /* 输入框 */
+        .input-container {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .input-container:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-light);
+        }
+
+        .input-textarea {
+            width: 100%;
+            border: none;
+            padding: 18px 20px;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            min-height: 64px;
+            background: transparent;
+            color: var(--text-primary);
+        }
+
+        .input-textarea::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .input-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .input-action-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            font-size: 18px;
+        }
+
+        .input-action-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--text-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            font-size: 16px;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.08);
+        }
+
+        /* ========== 悬浮窗 ========== */
+        .float-window {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            width: 400px;
+            background: var(--bg-primary);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            z-index: 500;
+            border: 1px solid var(--border);
+        }
+
+        .float-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .float-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .translate-toggle {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            font-size: 15px;
+        }
+
+        .translate-toggle:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .translate-toggle.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .lang-switch {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .lang-selector {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+
+        .lang-selector:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .lang-swap {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            font-size: 14px;
+        }
+
+        .lang-swap:hover {
+            background: var(--bg-hover);
+            color: var(--accent);
+        }
+
+        .float-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            font-size: 15px;
+        }
+
+        .float-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .float-tabs {
+            display: flex;
+            background: var(--bg-tertiary);
+            padding: 0 16px;
+            gap: 4px;
+        }
+
+        .float-tab {
+            padding: 14px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .float-tab.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--text-primary);
+        }
+
+        .float-tab:hover:not(.active) {
+            color: var(--text-secondary);
+        }
+
+        .float-tab .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            background: var(--text-primary);
+            color: white;
+            border-radius: 10px;
+            font-size: 12px;
+            padding: 0 6px;
+            font-weight: 600;
+        }
+
+        .float-content {
+            max-height: 340px;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .float-content::-webkit-scrollbar {
+            width: 0;
+        }
+
+        /* 转录卡片 */
+        .transcript-card {
+            background: var(--bg-tertiary);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            transition: all 0.15s ease;
+        }
+
+        .transcript-card:hover {
+            background: var(--bg-hover);
+        }
+
+        .transcript-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .speaker-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .timestamp {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .tag {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .tag.highlight {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .tag.todo {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .transcript-text {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .transcript-translation {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border);
+            font-size: 14px;
+            color: var(--text-tertiary);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        /* 控制栏 */
+        .float-controls {
+            border-top: 1px solid var(--border);
+            padding: 16px;
+            background: var(--bg-tertiary);
+        }
+
+        .waveform {
+            height: 40px;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 0 24px;
+        }
+
+        .wave-bar {
+            width: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+            animation: wave 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes wave {
+            from { height: 8px; opacity: 0.3; }
+            to { height: 28px; opacity: 1; }
+        }
+
+        .wave-bar:nth-child(2) { animation-delay: 0.08s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.16s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.24s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.32s; }
+        .wave-bar:nth-child(6) { animation-delay: 0.24s; }
+        .wave-bar:nth-child(7) { animation-delay: 0.16s; }
+        .wave-bar:nth-child(8) { animation-delay: 0.08s; }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pause-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: var(--bg-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .pause-btn:hover {
+            box-shadow: var(--shadow-sm);
+        }
+
+        .time-display {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.5px;
+        }
+
+        .stop-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: #FF3B30;
+            border-radius: 12px;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.15s ease;
+        }
+
+        .stop-btn:hover {
+            background: #E5342B;
+            transform: scale(1.05);
+        }
+
+        /* AI 提示卡片 */
+        .ai-prompt {
+            background: var(--accent-light);
+            border-top: 1px solid var(--border);
+            padding: 16px;
+        }
+
+        .ai-prompt-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .ai-prompt-icon {
+            font-size: 18px;
+        }
+
+        .ai-prompt-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .ai-prompt-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            margin-left: 28px;
+        }
+
+        .ai-prompt-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 28px;
+        }
+
+        .execute-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .execute-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .skip-btn {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .skip-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .view-all {
+            margin-left: auto;
+            font-size: 14px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: color 0.15s ease;
+        }
+
+        .view-all:hover {
+            color: var(--accent);
+        }
+
+        /* ========== 嵌入模式 ========== */
+        .embed-layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        .embed-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .embed-panel {
+            width: 380px;
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border);
+        }
+
+        /* 对话区 */
+        .chat-area {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-message {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .chat-message.assistant {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .assistant-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .assistant-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--text-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .assistant-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .meeting-card-chat {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .meeting-card-chat:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .meeting-icon {
+            width: 52px;
+            height: 52px;
+            background: var(--accent-light);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            position: relative;
+        }
+
+        .recording-dot {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 14px;
+            height: 14px;
+            background: #FF3B30;
+            border-radius: 50%;
+            border: 3px solid var(--bg-primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .meeting-info {
+            flex: 1;
+        }
+
+        .meeting-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .meeting-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: #FF3B30;
+            font-weight: 500;
+        }
+
+        .status-time {
+            font-size: 14px;
+            color: var(--text-tertiary);
+        }
+
+        .meeting-arrow {
+            color: var(--text-tertiary);
+            font-size: 18px;
+        }
+
+        /* 底部输入 */
+        .chat-input-area {
+            padding: 20px 32px 28px;
+            background: var(--bg-primary);
+        }
+
+        /* ========== 待办与重点 Tab ========== */
+        .todo-section {
+            margin-bottom: 24px;
+        }
+
+        .todo-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .todo-count {
+            font-weight: 400;
+        }
+
+        .todo-item {
+            background: var(--bg-primary);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .todo-item:hover {
+            box-shadow: var(--shadow-sm);
+        }
+
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-hover);
+            border-radius: 6px;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        .todo-content {
+            flex: 1;
+        }
+
+        .todo-text {
+            font-size: 15px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .todo-meta {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .todo-execute-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .todo-execute-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .highlight-item {
+            background: var(--bg-primary);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .highlight-icon {
+            color: var(--warning);
+            margin-right: 8px;
+        }
+
+        .highlight-text {
+            font-size: 15px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .highlight-meta {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面切换器 -->
+    <div class="page-switcher">
+        <button class="active" onclick="showPage('home')">首页</button>
+        <button onclick="showPage('floating')">悬浮窗</button>
+        <button onclick="showPage('embed')">嵌入模式</button>
+        <button onclick="showPage('todo')">待办与重点</button>
+    </div>
+
+    <!-- ========== 页面1：首页 ========== -->
+    <div id="page-home" class="page active">
+        <div class="main-layout">
+            <!-- 左侧边栏 -->
+            <div class="sidebar">
+                <div class="logo">
+                    <div class="logo-icon">✦</div>
+                    <div class="logo-text">Agent Aid</div>
+                </div>
+
+                <button class="new-task-btn">
+                    <span class="plus">+</span>
+                    <span>新建任务</span>
+                </button>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-item">
+                        <span class="icon">📁</span>
+                        <span>文件库</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-label">历史对话</div>
+                    <div class="sidebar-item active">
+                        <span class="icon">💬</span>
+                        <span>AI录音笔：3月24日</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="icon">💬</span>
+                        <span>会议记录：3月23日</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="icon">💬</span>
+                        <span>周报汇总</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-spacer"></div>
+
+                <div class="sidebar-footer">
+                    <div class="sidebar-item">
+                        <span class="icon">⚙️</span>
+                        <span>设置</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="icon">👤</span>
+                        <span>我的</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="main-content">
+                <div class="topbar">
+                    <button class="start-btn">
+                        <span>🎙</span>
+                        <span>开启同传</span>
+                    </button>
+                </div>
+
+                <div class="home-content">
+                    <h1 class="welcome-title">有什么我能帮你的吗？</h1>
+                    <p class="welcome-subtitle">我是你的智能助手，可以帮你实时转录会议、自动整理任务、分析数据</p>
+
+                    <div class="quick-actions">
+                        <div class="quick-card">
+                            <div class="quick-card-icon blue">🎙</div>
+                            <div class="quick-card-title">开始会议</div>
+                            <div class="quick-card-desc">实时转录，智能识别任务与重点</div>
+                            <div class="quick-card-arrow">→</div>
+                        </div>
+                        <div class="quick-card">
+                            <div class="quick-card-icon green">📊</div>
+                            <div class="quick-card-title">数据分析</div>
+                            <div class="quick-card-desc">上传数据，自动生成可视化报告</div>
+                            <div class="quick-card-arrow">→</div>
+                        </div>
+                        <div class="quick-card">
+                            <div class="quick-card-icon orange">📽</div>
+                            <div class="quick-card-title">
+                                生成 PPT
+                                <span class="quick-card-badge">Beta</span>
+                            </div>
+                            <div class="quick-card-desc">一键生成专业演示文稿</div>
+                            <div class="quick-card-arrow">→</div>
+                        </div>
+                    </div>
+
+                    <div class="input-container">
+                        <textarea class="input-textarea" placeholder="输入你的需求，例如：开始会议、分析销售数据..."></textarea>
+                        <div class="input-toolbar">
+                            <div class="input-actions">
+                                <button class="input-action-btn">📎</button>
+                                <button class="input-action-btn">🖼</button>
+                            </div>
+                            <button class="send-btn">↑</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 页面2：悬浮窗 ========== -->
+    <div id="page-floating" class="page">
+        <div style="padding: 100px 24px; min-height: 100vh; background: var(--bg-secondary);">
+            <p style="text-align: center; color: var(--text-tertiary); margin-bottom: 40px; font-size: 14px;">悬浮窗默认位于屏幕右上角，可拖拽移动</p>
+
+            <div class="float-window" style="position: relative; top: auto; right: auto; margin: 0 auto;">
+                <div class="float-toolbar">
+                    <div class="float-toolbar-left">
+                        <button class="translate-toggle active" title="翻译开关">🌐</button>
+                        <div class="lang-switch">
+                            <div class="lang-selector">中文 ▾</div>
+                            <button class="lang-swap">⇄</button>
+                            <div class="lang-selector">English ▾</div>
+                        </div>
+                    </div>
+                    <button class="float-btn">↗</button>
+                </div>
+
+                <div class="float-tabs">
+                    <div class="float-tab active">📝 实时转写</div>
+                    <div class="float-tab">✅ 待办与重点 <span class="badge">3</span></div>
+                </div>
+
+                <div class="float-content">
+                    <div class="transcript-card">
+                        <div class="transcript-header">
+                            <span class="speaker-name">王工</span>
+                            <span class="timestamp">00:15</span>
+                            <span class="tag highlight">重点</span>
+                        </div>
+                        <div class="transcript-text">性能方面，首屏加载时间从3.2秒优化到了1.8秒，但还有提升空间。</div>
+                        <div class="transcript-translation">In terms of performance, the first screen loading time has been optimized from 3.2s to 1.8s, but there is still room for improvement.</div>
+                    </div>
+
+                    <div class="transcript-card">
+                        <div class="transcript-header">
+                            <span class="speaker-name">张总</span>
+                            <span class="timestamp">00:25</span>
+                        </div>
+                        <div class="transcript-text">不错。那接下来的重点是什么？</div>
+                        <div class="transcript-translation">Not bad. So what's the focus next?</div>
+                    </div>
+
+                    <div class="transcript-card">
+                        <div class="transcript-header">
+                            <span class="speaker-name">李经理</span>
+                            <span class="timestamp">00:32</span>
+                            <span class="tag highlight">重点</span>
+                        </div>
+                        <div class="transcript-text">我建议本周先把性能优化作为第一优先级，目标是把首屏加载降到1.5秒以内。</div>
+                        <div class="transcript-translation">I suggest making performance optimization the top priority this week, with the goal of reducing first screen loading to under 1.5 seconds.</div>
+                    </div>
+
+                    <div class="transcript-card">
+                        <div class="transcript-header">
+                            <span class="speaker-name">王工</span>
+                            <span class="timestamp">00:45</span>
+                            <span class="tag todo">待办</span>
+                        </div>
+                        <div class="transcript-text">好的，我来负责性能优化，预计周三前完成第一轮优化并出测试报告。</div>
+                        <div class="transcript-translation">Okay, I'll be responsible for performance optimization. I expect to complete the first round of optimization and produce a test report by Wednesday.</div>
+                    </div>
+                </div>
+
+                <div class="float-controls">
+                    <div class="waveform">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                    <div class="control-row">
+                        <button class="pause-btn">⏸</button>
+                        <span class="time-display">00:45</span>
+                        <button class="stop-btn">■</button>
+                    </div>
+                </div>
+
+                <div class="ai-prompt">
+                    <div class="ai-prompt-header">
+                        <span class="ai-prompt-icon">✨</span>
+                        <span class="ai-prompt-title">识别到待办：修复客户导出功能Bug</span>
+                    </div>
+                    <div class="ai-prompt-desc">这是高优先级问题，需要我帮你创建任务吗？</div>
+                    <div class="ai-prompt-actions">
+                        <button class="execute-btn">帮我执行</button>
+                        <button class="skip-btn">暂不需要</button>
+                        <span class="view-all">全部 →</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 页面3：嵌入模式 ========== -->
+    <div id="page-embed" class="page">
+        <div class="embed-layout">
+            <div class="sidebar">
+                <div class="logo">
+                    <div class="logo-icon">✦</div>
+                    <div class="logo-text">Agent Aid</div>
+                </div>
+
+                <button class="new-task-btn">
+                    <span class="plus">+</span>
+                    <span>新建任务</span>
+                </button>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-item">
+                        <span class="icon">📁</span>
+                        <span>文件库</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-label">历史对话</div>
+                    <div class="sidebar-item active">
+                        <span class="icon">💬</span>
+                        <span>AI录音笔：3月24日</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-spacer"></div>
+
+                <div class="sidebar-footer">
+                    <div class="sidebar-item">
+                        <span class="icon">⚙️</span>
+                        <span>设置</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="icon">👤</span>
+                        <span>我的</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="embed-main">
+                <div class="topbar">
+                    <button class="start-btn">
+                        <span>🎙</span>
+                        <span>开始会议录音</span>
+                    </button>
+                </div>
+
+                <div class="chat-area">
+                    <div class="chat-message assistant">
+                        <div class="assistant-header">
+                            <div class="assistant-avatar">✦</div>
+                            <div class="assistant-name">智能助手</div>
+                        </div>
+                        <div class="meeting-card-chat">
+                            <div class="meeting-icon">
+                                🎙
+                                <div class="recording-dot"></div>
+                            </div>
+                            <div class="meeting-info">
+                                <div class="meeting-title">AI录音笔：3月24日18点01分</div>
+                                <div class="meeting-status">
+                                    <span class="status-text">录音中</span>
+                                    <span class="status-time">00:45</span>
+                                </div>
+                            </div>
+                            <span class="meeting-arrow">→</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <div class="input-container">
+                        <textarea class="input-textarea" placeholder="继续补充要求..." style="min-height: 52px;"></textarea>
+                        <div class="input-toolbar">
+                            <div class="input-actions">
+                                <button class="input-action-btn">📎</button>
+                                <button class="input-action-btn">🖼</button>
+                            </div>
+                            <button class="send-btn">↑</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="embed-panel">
+                <div class="float-toolbar">
+                    <div class="float-toolbar-left">
+                        <button class="translate-toggle active" title="翻译开关">🌐</button>
+                        <div class="lang-switch">
+                            <div class="lang-selector">中文 ▾</div>
+                            <button class="lang-swap">⇄</button>
+                            <div class="lang-selector">English ▾</div>
+                        </div>
+                    </div>
+                    <button class="float-btn">↗</button>
+                </div>
+
+                <div class="float-tabs">
+                    <div class="float-tab active">📝 实时转写</div>
+                    <div class="float-tab">✅ 待办与重点 <span class="badge">3</span></div>
+                </div>
+
+                <div class="float-content" style="max-height: calc(100vh - 300px);">
+                    <div class="transcript-card">
+                        <div class="transcript-header">
+                            <span class="speaker-name">王工</span>
+                            <span class="timestamp">00:15</span>
+                            <span class="tag highlight">重点</span>
+                        </div>
+                        <div class="transcript-text">性能方面，首屏加载时间从3.2秒优化到了1.8秒，但还有提升空间。</div>
+                        <div class="transcript-translation">In terms of performance, the first screen loading time has been optimized from 3.2s to 1.8s, but there is still room for improvement.</div>
+                    </div>
+
+                    <div class="transcript-card">
+                        <div class="transcript-header">
+                            <span class="speaker-name">张总</span>
+                            <span class="timestamp">00:25</span>
+                        </div>
+                        <div class="transcript-text">不错。那接下来的重点是什么？</div>
+                        <div class="transcript-translation">Not bad. So what's the focus next?</div>
+                    </div>
+
+                    <div class="transcript-card">
+                        <div class="transcript-header">
+                            <span class="speaker-name">李经理</span>
+                            <span class="timestamp">00:32</span>
+                            <span class="tag highlight">重点</span>
+                        </div>
+                        <div class="transcript-text">我建议本周先把性能优化作为第一优先级，目标是把首屏加载降到1.5秒以内。</div>
+                        <div class="transcript-translation">I suggest making performance optimization the top priority this week, with the goal of reducing first screen loading to under 1.5 seconds.</div>
+                    </div>
+
+                    <div class="transcript-card">
+                        <div class="transcript-header">
+                            <span class="speaker-name">王工</span>
+                            <span class="timestamp">00:45</span>
+                            <span class="tag todo">待办</span>
+                        </div>
+                        <div class="transcript-text">好的，我来负责性能优化，预计周三前完成第一轮优化并出测试报告。</div>
+                        <div class="transcript-translation">Okay, I'll be responsible for performance optimization. I expect to complete the first round of optimization and produce a test report by Wednesday.</div>
+                    </div>
+                </div>
+
+                <div class="float-controls">
+                    <div class="waveform">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                    <div class="control-row">
+                        <button class="pause-btn">⏸</button>
+                        <span class="time-display">00:45</span>
+                        <button class="stop-btn">■</button>
+                    </div>
+                </div>
+
+                <div class="ai-prompt">
+                    <div class="ai-prompt-header">
+                        <span class="ai-prompt-icon">✨</span>
+                        <span class="ai-prompt-title">识别到待办：修复客户导出功能Bug</span>
+                    </div>
+                    <div class="ai-prompt-desc">需要我帮你创建任务吗？</div>
+                    <div class="ai-prompt-actions">
+                        <button class="execute-btn">帮我执行</button>
+                        <button class="skip-btn">暂不需要</button>
+                        <span class="view-all">全部 →</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 页面4：待办与重点 ========== -->
+    <div id="page-todo" class="page">
+        <div style="padding: 100px 24px; min-height: 100vh; background: var(--bg-secondary);">
+            <p style="text-align: center; color: var(--text-tertiary); margin-bottom: 40px; font-size: 14px;">悬浮窗 - 待办与重点 Tab</p>
+
+            <div class="float-window" style="position: relative; top: auto; right: auto; margin: 0 auto;">
+                <div class="float-toolbar">
+                    <div class="float-toolbar-left">
+                        <button class="translate-toggle" title="翻译开关">🌐</button>
+                        <div class="lang-switch">
+                            <div class="lang-selector">中文 ▾</div>
+                            <button class="lang-swap">⇄</button>
+                            <div class="lang-selector">English ▾</div>
+                        </div>
+                    </div>
+                    <button class="float-btn">↗</button>
+                </div>
+
+                <div class="float-tabs">
+                    <div class="float-tab">📝 实时转写</div>
+                    <div class="float-tab active">✅ 待办与重点 <span class="badge">3</span></div>
+                </div>
+
+                <div class="float-content">
+                    <div class="todo-section">
+                        <div class="todo-section-title">
+                            待办事项 <span class="todo-count">(2)</span>
+                        </div>
+
+                        <div class="todo-item">
+                            <div class="todo-checkbox"></div>
+                            <div class="todo-content">
+                                <div class="todo-text">周三前完成第一轮性能优化并出测试报告</div>
+                                <div class="todo-meta">王工 · 00:45</div>
+                            </div>
+                            <button class="todo-execute-btn">执行</button>
+                        </div>
+
+                        <div class="todo-item">
+                            <div class="todo-checkbox"></div>
+                            <div class="todo-content">
+                                <div class="todo-text">修复客户导出功能Bug</div>
+                                <div class="todo-meta">待分配 · 00:52</div>
+                            </div>
+                            <button class="todo-execute-btn">执行</button>
+                        </div>
+                    </div>
+
+                    <div class="todo-section">
+                        <div class="todo-section-title">
+                            重点内容 <span class="todo-count">(1)</span>
+                        </div>
+
+                        <div class="highlight-item">
+                            <div class="highlight-text">
+                                <span class="highlight-icon">⭐</span>
+                                目标是把首屏加载降到1.5秒以内
+                            </div>
+                            <div class="highlight-meta">李经理 · 00:32</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="float-controls">
+                    <div class="waveform">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                    <div class="control-row">
+                        <button class="pause-btn">⏸</button>
+                        <span class="time-display">00:52</span>
+                        <button class="stop-btn">■</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            document.querySelectorAll('.page-switcher button').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
